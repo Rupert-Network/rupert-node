@@ -1,10 +1,12 @@
-#[derive(Debug, Clone, Copy)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum PeerType {
     Direct,
     Related,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Peer {
     pub ip: Vec<u8>,
     pub port: u16,
@@ -21,18 +23,28 @@ impl Peer {
     }
 
     pub fn url(&self) -> String {
-        let ip_string = self.ip
+        let ip_string = self
+            .ip
             .iter()
             .enumerate()
-            .map(|(i, c)| {
-                match i + 1 == self.ip.len() {
-                    true => format!("{}", c),
-                    false => format!("{}.", c),
-                }
+            .map(|(i, c)| match i + 1 == self.ip.len() {
+                true => format!("{}", c),
+                false => format!("{}.", c),
             })
             .collect::<String>();
 
-            format!("ws://{}:{}", ip_string, self.port)
+        format!("ws://{}:{}", ip_string, self.port)
+    }
+
+    pub fn get_connection() {
+        // TODO: implement
+        // Connects to node (using tungstenite)
+        // Check rpc version etc
+    }
+
+    pub fn from_eth(network_url: String) -> Vec<Peer> {
+        // TODO: implement
+        vec![]
     }
 }
 

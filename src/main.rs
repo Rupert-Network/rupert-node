@@ -2,8 +2,10 @@
 //Gather and return list of peers
 //Each peer listing
 
+mod core;
 mod peer;
-//mod security;
+mod protocol;
+mod serve;
 
 use warp::Filter;
 //use crate::peer::Peer;
@@ -36,7 +38,7 @@ use warp::Filter;
         //There should be a handler function w a
         //hard coded list of peers from peer.rs
 
-    
+
     }
 
      let routes = get_ep; //or(post_endpoints);
