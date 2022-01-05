@@ -1,7 +1,6 @@
-mod peer;
-mod serve;
 mod core;
+mod peer;
 mod protocol;
+mod serve;
 
-fn main() {
-}
+fn main() {}

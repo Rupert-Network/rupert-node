@@ -1,5 +1,4 @@
-use serde::{ Serialize, Deserialize };
-
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 struct ProtoRequest<T: Into<String>> {
@@ -8,13 +7,8 @@ struct ProtoRequest<T: Into<String>> {
     params: Vec<T>,
 }
 
-impl <T: Into<String>> ProtoRequest<T> {
-    fn new(method: String, params: Vec<T>, id: u128) -> Self 
-    {
-        Self {
-            method,
-            params,
-            id,
-        }
+impl<T: Into<String>> ProtoRequest<T> {
+    fn new(method: String, params: Vec<T>, id: u128) -> Self {
+        Self { method, params, id }
     }
 }
