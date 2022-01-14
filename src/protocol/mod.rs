@@ -44,9 +44,12 @@ mod test {
 
     #[test]
     fn protocol_new_test() {
+        // Creates handler for rpc
         let mut io = IoHandler::new();
+        // Adds a specific rpc implementation to the handler
         io.extend_with(Protocol.to_delegate());
 
+        // Creates local test server (dont use this outide of protocol testing)
         let (client, server) = local::connect::<gen_client::Client, _, _>(io);
 
         let fut = async move {
