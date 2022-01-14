@@ -3,8 +3,8 @@ use warp::reply::Json;
 use warp::Filter;
 use warp::filters::BoxedFilter;
 
-// pub fn handle_peer_ws(ws: war) {//for peers that are connected}
 
+// pub fn handle_peer_ws(ws: war) {//for peers that are connected}
 pub fn list_peers() -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Copy {
     warp::path!("l_peers")
         .and(warp::get())
@@ -25,6 +25,7 @@ pub async fn get_peer_list()
 
     Ok(warp::reply::json(&fake_list))
 }
+
 
 #[cfg(test)]
 mod test {

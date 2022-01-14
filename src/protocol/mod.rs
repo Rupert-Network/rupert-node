@@ -1,35 +1,69 @@
-use serde::{Deserialize, Serialize};
+use jsonrpc_core::*;
+use jsonrpc_derive::rpc;
+use super::peer::*;
 
-#[derive(Serialize, Deserialize)]
-struct ProtoParam<T: Into<String>> {
-    name: String,
-    value: T,
+#[rpc]
+pub trait Rpc {
+    #[rpc(name = "protocol_version")]
+    fn protocol_version(&self) -> Result<String>;
+    
+    #[rpc(name = "list_peers")]
+    fn list_peers(&self, max: u32) -> Result<Vec<Peer>>;
 }
 
-#[derive(Serialize, Deserialize)]
-struct ProtoRequest<T: Into<String>> {
-    method: String,
-    id: u128,
-    params: Vec<ProtoParam<T>>,
-}
+pub struct Protocol;
 
-impl <T: Into<String>> ProtoParam<T> {
-    fn new(name: &str, value: T) -> Self {
-        Self { name: name.to_string(), value }
+impl Rpc for Protocol {
+    fn protocol_version(&self) -> Result<String> {
+        Ok("v0.1a".to_string())
     }
-}
 
-impl<T: Into<String>> ProtoRequest<T> {
-    fn new(method: String, params: Vec<ProtoParam<T>>, id: u128) -> Self {
-        Self { method, params, id }
+    fn list_peers(&self, max: u32) -> Result<Vec<Peer>> {
+        let peers = vec![
+            Peer::new(&[192, 168, 1, 1], 3001, PeerType::Direct),
+            Peer::new(&[192, 168, 2, 2], 3002, PeerType::Related),
+            Peer::new(&[192, 168, 3, 3], 3003, PeerType::Direct),
+            Peer::new(&[192, 168, 4, 4], 3004, PeerType::Related),
+            Peer::new(&[192, 168, 5, 5], 3005, PeerType::Direct)
+        ]
+            .iter()
+            .take(max as usize)
+            .cloned()
+            .collect::<Vec<Peer>>();
+
+        Ok(peers)
     }
 }
 
 #[cfg(test)]
 mod test {
-    use super::*;
+    use jsonrpc_core_client::transports::local;
+    use jsonrpc_core::{ IoHandler, futures::{ self, TryFutureExt, FutureExt } };
+    use super::{ *, gen_client };
 
     #[test]
-    fn proto_request_new_test() {
+    fn protocol_new_test() {
+        let mut io = IoHandler::new();
+        io.extend_with(Protocol.to_delegate());
+
+        let (client, server) = local::connect::<gen_client::Client, _, _>(io);
+
+        let fut = async move {
+            let res = client.list_peers(2).await.unwrap();
+            assert_eq!(
+                res,
+                vec![
+                    Peer::new(&[192, 168, 1, 1], 3001, PeerType::Direct),
+                    Peer::new(&[192, 168, 2, 2], 3002, PeerType::Related),
+                ]
+            );
+        };
+
+        futures::executor::block_on( async move { futures::join!(server, fut) })
+            .0
+            .unwrap();
+
+        assert!(true);
     }
-}
+    
+} /* test */
