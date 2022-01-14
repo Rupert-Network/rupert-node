@@ -1,2 +1,2 @@
-mod handlers;
 mod filters;
+mod handlers;

@@ -11,7 +11,5 @@ use warp::Filter;
 //use crate::peer::Peer;
 //Need alt
 
-
 #[tokio::main]
- async fn main() {
- }
+async fn main() {}

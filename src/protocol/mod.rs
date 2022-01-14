@@ -1,12 +1,12 @@
+use super::peer::*;
 use jsonrpc_core::*;
 use jsonrpc_derive::rpc;
-use super::peer::*;
 
 #[rpc]
 pub trait Rpc {
     #[rpc(name = "protocol_version")]
     fn protocol_version(&self) -> Result<String>;
-    
+
     #[rpc(name = "list_peers")]
     fn list_peers(&self, max: u32) -> Result<Vec<Peer>>;
 }
@@ -24,12 +24,12 @@ impl Rpc for Protocol {
             Peer::new(&[192, 168, 2, 2], 3002, PeerType::Related),
             Peer::new(&[192, 168, 3, 3], 3003, PeerType::Direct),
             Peer::new(&[192, 168, 4, 4], 3004, PeerType::Related),
-            Peer::new(&[192, 168, 5, 5], 3005, PeerType::Direct)
+            Peer::new(&[192, 168, 5, 5], 3005, PeerType::Direct),
         ]
-            .iter()
-            .take(max as usize)
-            .cloned()
-            .collect::<Vec<Peer>>();
+        .iter()
+        .take(max as usize)
+        .cloned()
+        .collect::<Vec<Peer>>();
 
         Ok(peers)
     }
@@ -37,9 +37,10 @@ impl Rpc for Protocol {
 
 #[cfg(test)]
 mod test {
+    use jsonrpc_core::{futures, IoHandler};
     use jsonrpc_core_client::transports::local;
-    use jsonrpc_core::{ IoHandler, futures::{ self, TryFutureExt, FutureExt } };
-    use super::{ *, gen_client };
+    // gen_client wont be detected by lsp as it is built by #[rpc] macro
+    use super::{gen_client, *};
 
     #[test]
     fn protocol_new_test() {
@@ -59,11 +60,10 @@ mod test {
             );
         };
 
-        futures::executor::block_on( async move { futures::join!(server, fut) })
+        futures::executor::block_on(async move { futures::join!(server, fut) })
             .0
             .unwrap();
 
         assert!(true);
     }
-    
 } /* test */
