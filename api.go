@@ -40,3 +40,5 @@ func ListPeersHandler(m *sync.Mutex, pl PeerLister) func(http.ResponseWriter, *h
 		fmt.Fprintf(w, "%s", string(jsonPeers))
 	}
 }
+
+// oof
