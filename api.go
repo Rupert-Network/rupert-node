@@ -5,40 +5,38 @@ import (
 	"fmt"           // io lib
 	"log"           // logging  lib
 	"net/http"      // networking lib (think warp rs)
-	"sync"          // used for syncronization between async processes
+	"strconv"
+	"sync" // used for syncronization between async processes
 )
 
-// Standard data stuct
-type State struct {
-	// Makes it to where only one thing can access the shared state
-	*sync.Mutex
-	// Current state can be anything
-	CurrentState interface{}
+// PeerLister ...
+type PeerLister interface {
+	PeerList(start, stop int64) []Peer
 }
 
-// Takes a reference to a state and returns a handler func
-func ListPeersHandler(s *State) func(http.ResponseWriter, *http.Request) {
-	// Takes a response writer (where you send data) and an http request
+// ListPeersHandler ...
+func ListPeersHandler(m *sync.Mutex, pl PeerLister) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Locks access to state
-		s.Lock()
-		// Unlocks access at end of function
-		defer s.Unlock()
+		m.Lock()
+		defer m.Unlock()
 
-		// One of either jsonPeers or err will be nil
-		// jsonPeer will be nil if the function fails and err wont be nil
-		// jsonPeer will not be nil if the function succeeds and err will be nil
-		jsonPeers, err := json.Marshal(s.CurrentState)
+		// Get max num of peers
+		start, err := strconv.ParseInt(r.URL.Query().Get("start"), 10, 64)
+		if err != nil {
+			start = 0
+		}
+
+		stop, err := strconv.ParseInt(r.URL.Query().Get("stop"), 10, 64)
+		if err != nil {
+			stop = 0
+		}
+
+		jsonPeers, err := json.Marshal(pl.PeerList(start, stop))
 		if err != nil {
 			// prints out an error
 			log.Fatalf("Error occured during marshaling. Error: %s", err.Error())
 		}
 
-		// treats the response writer as a place you can write data to (like standard io)
-		// converts jsonPeers to a string
-		fmt.Fprintf(w, "%s\n", string(jsonPeers))
-
-		// sets the current state to an empty array of peers
-		s.CurrentState = []Peer{}
+		fmt.Fprintf(w, "%s", string(jsonPeers))
 	}
 }
