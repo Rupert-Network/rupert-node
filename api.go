@@ -21,12 +21,15 @@ func ListPeersHandler(m *sync.Mutex, pl PeerLister) func(http.ResponseWriter, *h
 		defer m.Unlock()
 
 		// Get max num of peers
-		start, err := strconv.ParseInt(r.URL.Query().Get("start"), 10, 64)
+		startURLParam := r.URL.Query().Get("start")
+		stopURLParam := r.URL.Query().Get("stop")
+
+		start, err := strconv.ParseInt(startURLParam, 10, 64)
 		if err != nil {
 			start = 0
 		}
 
-		stop, err := strconv.ParseInt(r.URL.Query().Get("stop"), 10, 64)
+		stop, err := strconv.ParseInt(stopURLParam, 10, 64)
 		if err != nil {
 			stop = 0
 		}
