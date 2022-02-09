@@ -38,7 +38,7 @@ func TestRPCHandler(t *testing.T) {
 		t.Fatal("arith error:", err)
 	}
 
-	if reply != 57 {
-		t.Fatalf("expected %d got %d", 57, reply)
+	if reply != 56 {
+		t.Fatalf("expected %d got %d", 56, reply)
 	}
 }
