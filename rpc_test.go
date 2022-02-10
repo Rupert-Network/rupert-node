@@ -1,7 +1,9 @@
 package main
 
 import (
-	"encoding/base64"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
 	"testing"
 )
 
@@ -9,21 +11,29 @@ func TestVerify(t *testing.T) {
 	// Create new Verify
 	v := new(Verify)
 	// Empty account until read from chain implemented
-	args := struct{ account []byte }{[]byte(":)")}
+	args := GetEncryptedMessageArgs{[]byte(":)")}
 	// Byte array to store response
-	var reply []byte
+	var reply GetEncryptedMessageReply
 
 	// Call
-	v.GetEncryptedMessage(
-		&args,
-		&reply,
-	)
+	if err := v.GetEncryptedMessage(&args, &reply); err != nil {
+		t.Fatalf("error getting encrypted message: %s", err)
+	}
 
-	// As GetEncryptedMessage is incomplete this is just to demonstrate the
-	// passing of the message back
-	if string(reply) != ":(" {
-		t.Fatalf("Crazy it was actually %s",
-			base64.StdEncoding.EncodeToString(reply),
-		)
+	label := []byte("OAEP Encrypted")
+	rng := rand.Reader
+	plaintext, err := rsa.DecryptOAEP(sha256.New(), rng, &reply.privKey, reply.message, label)
+	if err != nil {
+		t.Fatalf("error decrypting: %s", err)
+	}
+
+	vArgs := ValidateDecryptionArgs{
+		string(plaintext),
+		[]byte(":)"),
+	}
+	var vReply bool
+
+	if err = v.ValidateDecryption(&vArgs, &vReply); err != nil {
+		t.Fatalf("error validating decryption: %s", err)
 	}
 }
