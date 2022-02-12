@@ -20,7 +20,7 @@ func TestVerify(t *testing.T) {
 		t.Fatalf("error getting encrypted message: %s", err)
 	}
 
-	label := []byte("OAEP Encrypted")
+	label := []byte("Ni...")
 	rng := rand.Reader
 	plaintext, err := rsa.DecryptOAEP(sha256.New(), rng, &reply.privKey, reply.message, label)
 	if err != nil {

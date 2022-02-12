@@ -51,3 +51,22 @@ func (*Verify) GetEncryptedMessage(
 
 	return nil
 }
+
+// ValidateDecryptionArgs ...
+type ValidateDecryptionArgs struct {
+	message string
+	account []byte
+}
+
+// ValidateDecryption ...
+func (*Verify) ValidateDecryption(
+	args *ValidateDecryptionArgs,
+	reply *bool,
+) error {
+	*reply = true
+	if args.message != "bruh" {
+		*reply = false
+	}
+
+	return nil
+}
